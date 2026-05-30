@@ -1,0 +1,12 @@
+{
+  // Tell C# Dev Kit exactly which solution to load.
+  // This prevents auto-discovery of Theme.csproj files in UiIntegrationExamples.
+  "dotnet.defaultSolution": "source/DuplicateHider.sln",
+
+  // Hide generated build output and backup folders from the Explorer
+  "files.exclude": {
+    "source/obj/": true,
+    "source/bin/": true,
+    "source/MigrationBackup/": true
+  }
+}

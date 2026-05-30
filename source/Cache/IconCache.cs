@@ -43,7 +43,11 @@ namespace DuplicateHider.Cache
                     image.EndInit();
                     image.Freeze();
                     return image;
-                } catch (Exception) {}
+                } catch (Exception ex)
+                {
+                    // BP1: Exception loggen statt stumm verschlucken
+                    DuplicateHiderPlugin.logger.Warn(ex, $"Failed to load icon from '{path}'");
+                }
             }
 
             return default(BitmapImage);
@@ -68,15 +72,8 @@ namespace DuplicateHider.Cache
             var source = game.Source ?? Constants.DEFAULT_SOURCE;
             var platform = game.Platforms?.FirstOrDefault()?.Name ?? Constants.UNDEFINED_PLATFORM;
             var key = source + platform;
-            if (cache.TryGetValue(key, out var icon))
-            {
-                return icon;
-            } else
-            {
-                var newIcon = generate(game);
-                cache[key] = newIcon;
-                return newIcon;
-            }
+            // B3: GetOrAdd ist atomar → verhindert parallele generate()-Aufrufe für denselben Key
+            return cache.GetOrAdd(key, _ => generate(game));
         }
 
         private static readonly Dictionary<Playnite.SDK.BuiltinExtension, string> builtinToName = new Dictionary<Playnite.SDK.BuiltinExtension, string>()
@@ -99,7 +96,7 @@ namespace DuplicateHider.Cache
 
         internal static string GetResourceIconUri(Game game)
         {
-            if (game is Game)
+            if (game != null) // BP3: war 'game is Game' — testet nur auf null bei gleichem Typ
             {
                 var pluginId = game.PluginId;
                 var source = game.Source?.Name ?? Constants.UNDEFINED_SOURCE;
@@ -119,16 +116,21 @@ namespace DuplicateHider.Cache
             return null;
         }
 
+        // O3: Assembly-Manifest einmalig einlesen und cachen – war zuvor bei jedem Aufruf teuer
+        private static string[] _resourceNamesCache;
+
         // https://stackoverflow.com/a/2517799
         internal static string[] GetResourceNames()
         {
+            if (_resourceNamesCache != null) return _resourceNamesCache;
             var asm = Assembly.GetAssembly(typeof(DuplicateHiderPlugin));
             string resName = asm.GetName().Name + ".g.resources";
             using (var stream = asm.GetManifestResourceStream(resName))
             using (var reader = new System.Resources.ResourceReader(stream))
             {
-                return reader.Cast<System.Collections.DictionaryEntry>().Select(entry => (string)entry.Key).ToArray();
+                _resourceNamesCache = reader.Cast<System.Collections.DictionaryEntry>().Select(entry => (string)entry.Key).ToArray();
             }
+            return _resourceNamesCache;
         }
 
         protected IEnumerable<string> GetSourceIconPaths(Game game)
@@ -146,11 +148,12 @@ namespace DuplicateHider.Cache
             var platformIconPath = GetPlatformIconPath(game);
             if (preferUserIcons) paths.Add(userIconPath);
             if (enableThemeIcons) paths.Add(themeIconPath);
-            if (game.Source == null) paths.Add(platformIconPath);
+            // #93: Platform-Icon ist spezifischer als Library/Source-Icon (z.B. Switch vs. Nintendo)
+            // → Platform-Icon hat Vorrang vor resourceIconPath und pluginIconPath
+            paths.Add(platformIconPath);
             paths.Add(resourceIconPath);
             if (!preferUserIcons) paths.Add(userIconPath);
             paths.Add(pluginIconPath);
-            if (game.Source != null) paths.Add(platformIconPath);
 
             return paths.Where(p => !string.IsNullOrEmpty(p) && Uri.TryCreate(p, UriKind.RelativeOrAbsolute, out var _))
                         .Concat(GetDefaultIconPaths());

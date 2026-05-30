@@ -117,4 +117,22 @@ namespace DuplicateHider
             return input.Where(g => g.Name != null);
         }
     }
+
+    // #121: Installierte Spiele nie aus dem Index ausschließen — sie werden immer berücksichtigt
+    class InstalledExemptFilter : IFilter<IEnumerable<Game>>
+    {
+        private readonly IFilter<IEnumerable<Game>> _inner;
+
+        public InstalledExemptFilter(IFilter<IEnumerable<Game>> inner)
+        {
+            _inner = inner;
+        }
+
+        public override IEnumerable<Game> ApplySingle(in IEnumerable<Game> input)
+        {
+            var installed = input.Where(g => g.IsInstalled);
+            var filtered = _inner.ApplySingle(in input);
+            return filtered.Union(installed);
+        }
+    }
 }

@@ -51,6 +51,10 @@ namespace DuplicateHider
 
         public EnabledFieldsModel DefaultEnabledFields { get; set; } = new EnabledFieldsModel();
         public UniqueList<string> IncludePlatforms { get; set; } = new UniqueList<string> { "PC (Windows)", Constants.UNDEFINED_SOURCE };
+        // #133: Wenn true, werden alle Plattformen einbezogen (IncludePlatforms wird ignoriert)
+        public bool IncludeAllPlatforms { get; set; } = false;
+        // #121: Wenn true, werden installierte Spiele nie von DH versteckt
+        public bool NeverHideInstalled { get; set; } = false;
         public UniqueList<string> ExcludeSources { get; set; } = new UniqueList<string>();
         public UniqueList<string> ExcludeCategories { get; set; } = new UniqueList<string>();
         public HashSet<Guid> IgnoredGames { get; set; } = new HashSet<Guid>();
@@ -75,6 +79,8 @@ namespace DuplicateHider
         public ObservableCollection<PriorityProperty> PriorityProperties { get; set; } = null;
 
         public List<CustomGroup> CustomGroups {get; set;} = new List<CustomGroup>();
+        // #141: Wenn true, Custom Groups im Spielemenü alphabetisch sortiert anzeigen
+        public bool SortCustomGroupsByName { get; set; } = false;
 
         [JsonIgnore]
         public ICommand AddPriorityPropertyCommand { get; private set; }
@@ -271,10 +277,20 @@ namespace DuplicateHider
                 {
                     if (isRegex)
                     {
-                        return new ReplaceFilter(right.Text, new Regex(left.Text, RegexOptions.IgnoreCase)) { asRegex = true };
+                        // S1: MatchTimeout verhindert ReDoS durch nutzerkontrollierten Regex-Input.
+                        // S2: try/catch fängt ArgumentException bei ungültigem Muster ab.
+                        try
+                        {
+                            return new ReplaceFilter(right.Text, new Regex(left.Text, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1))) { asRegex = true };
+                        }
+                        catch (ArgumentException ex)
+                        {
+                            DuplicateHiderPlugin.logger.Warn(ex, $"Invalid regex pattern ignored: {left.Text}");
+                            return null;
+                        }
                     } else
                     {
-                        return new ReplaceFilter(right.Text, new Regex(Regex.Escape(left.Text), RegexOptions.IgnoreCase));
+                        return new ReplaceFilter(right.Text, new Regex(Regex.Escape(left.Text), RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1)));
                     }
                 }
             }
@@ -339,7 +355,21 @@ namespace DuplicateHider
             this.plugin = plugin;
 
             // Load saved settings.
-            var savedSettings = plugin.LoadPluginSettings<DuplicateHiderSettings>();
+            DuplicateHiderSettings savedSettings = null;
+            try
+            {
+                savedSettings = plugin.LoadPluginSettings<DuplicateHiderSettings>();
+            }
+            catch (Exception ex)
+            {
+                // #127: Korrupte settings.json (z.B. ungültiges JSON) darf das Plugin nicht
+                // am Laden hindern. Stattdessen Default-Settings verwenden und warnen.
+                DuplicateHiderPlugin.logger.Error(ex, "Failed to load plugin settings — using defaults.");
+                plugin.PlayniteApi.Notifications.Add(new Playnite.SDK.NotificationMessage(
+                    "DH_SETTINGS_LOAD_ERROR",
+                    "DuplicateHider: Settings could not be loaded (corrupted file). Default settings were applied.",
+                    Playnite.SDK.NotificationType.Error));
+            }
 
             // LoadPluginSettings returns null if not saved data is available.
             if (savedSettings != null)
@@ -347,6 +377,8 @@ namespace DuplicateHider
                 Priorities = savedSettings.Priorities;
                 UpdateAutomatically = savedSettings.UpdateAutomatically;
                 IncludePlatforms = savedSettings.IncludePlatforms;
+                IncludeAllPlatforms = savedSettings.IncludeAllPlatforms;
+                NeverHideInstalled = savedSettings.NeverHideInstalled;
                 ExcludeCategories = savedSettings.ExcludeCategories;
                 ExcludeSources = savedSettings.ExcludeSources;
                 IgnoredGames = savedSettings.IgnoredGames;
@@ -360,6 +392,7 @@ namespace DuplicateHider
                 ShowSingleIcon = savedSettings.ShowSingleIcon;
                 SupressThemeIconNotification = savedSettings.SupressThemeIconNotification;
                 CustomGroups = savedSettings.CustomGroups;
+                SortCustomGroupsByName = savedSettings.SortCustomGroupsByName;
                 HiddenTagId = savedSettings.HiddenTagId;
                 RevealedTagId = savedSettings.RevealedTagId;
                 DefaultEnabledFields = savedSettings.DefaultEnabledFields;

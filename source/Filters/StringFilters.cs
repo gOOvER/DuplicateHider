@@ -68,7 +68,15 @@ namespace DuplicateHider
 
         public override string ApplySingle(in string input)
         {
-            return regex.Replace(input, _replace);
+            try
+            {
+                return regex.Replace(input, _replace);
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                // S1: Timeout des nutzerkontrollierten Regex → unveränderten Input zurückgeben
+                return input;
+            }
         }
     }
 
