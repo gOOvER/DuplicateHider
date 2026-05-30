@@ -16,7 +16,7 @@ An extension for [Playnite](https://github.com/JosefNemec/Playnite/ "Playnite - 
 ### Priorites
 
 Reordable list of Sources/Libraries that assigns each Source a priority according to their position in the priorites list. Higher position meaning a higher priority (lower value).
-Duplicate hider will use this priority to compute a score for each copy of a game,
+DuplicateHiderNG will use this priority to compute a score for each copy of a game,
 
 ```csharp
     Score(game) = Priority(game.Source) - priorityList.Count * IsInstalled(game)?1:0
@@ -30,13 +30,17 @@ If enabled, keeps the scores updated (and hides games accordingly) when changes 
 
 ### Game Filters
 
-The list of games that is checked for duplicats can be filtered by the _Indclude Platforms_, _Exclude Sources_ and _Exclude Categories_ filters.
+The list of games that is checked for duplicates can be filtered by the _Include Platforms_, _Exclude Sources_ and _Exclude Categories_ filters.
+
+Enable _Include All Platforms_ to bypass the platform filter entirely — all platforms, including newly added ones, will be considered.
 
 ### Ignored Games
 
 Additionally to the aforementioned filters, games in the _Ignored Games_ list are also not considered by DuplicateHiderNG.
 To remove entries from the list, select one or more entries and right click to remove them.  
 Also, enabling the _Add manually hidden/revealed Games_ option will cause games which hidden states are changed outside of DuplicateHiderNG to be added to that list.
+
+Enable _Never Hide Installed_ to ensure that installed copies are never hidden, regardless of source priority.
 
 ### Display String & Show Other Copies
 
@@ -51,16 +55,18 @@ To bring up a list of available variables, right click inside the text box and c
 
 The example above used `{Name} [{Installed}{ on 'Source}{, ROM: 'ImageNameNoExt}]` as the display string.
 
-### UI Intgration
+The `{Library}` variable resolves to the human-readable name of the importing library plugin (e.g. `Steam`, `GOG`). Use this instead of `{Source}` when you want the plugin name rather than the manually set source label.
+
+### UI Integration
 
 ![Icon Stack](https://i.ibb.co/NjxdSZC/grafik.png "Icon Stack")
 
-This extension provides a custom UI element that can be intgrated by theme creators.
-To use it, the Theme you are using needs to support it and the _UI Integration_ option must be enabled. Available starting with Planite 9.
+This extension provides a custom UI element that can be integrated by theme creators.
+To use it, the Theme you are using needs to support it and the _UI Integration_ option must be enabled. Available starting with Playnite 9.
 
 The custom UI element consists of a stack of icons associated with the copys of a game. Clicking on an icon will select this version of the game, double clicking launches it. Slightly grayed out icons indicate that a copy is not installed. An expample is shown above.
 
-- _UI Intgration_: Enable UI integration for Themes that support it.
+- _UI Integration_: Enable UI integration for Themes that support it.
 - _Enable Theme Icons_: Themes can provide their own icons for the different game libraries, like Steam, GOG and so on. If this option is enabled, those will be used if available.
 - _Prefer User Icons_: Users can also supply their own icons by placing them into a special folder. This folder can be opened by pressing the _Open user icon folder_ button. If this option is enabled, existing user icons will always be preferred, only falling back to the ones included with the Theme or the default ones, if no user icon can be found for a given source.
 - _Show icon if there is only one copy_: By default, icons are only displayed when the associated game has at least one additional copy. Enabling this option will always show an icon.
@@ -68,6 +74,12 @@ The custom UI element consists of a stack of icons associated with the copys of 
 #### User Specified Icons
 
 The extension comes with a set of predefined icons for common libraries (from https://icon-icons.com/pack/Material-Design/2248, under the [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) License), but users can also specify their own. For DuplicateHiderNG to find those icons, they need to be named like the sources in the _Priority List_, for example `Steam.ico` or `Ubisoft Connect.png` and then placed into the _source\_icons_ folder that can be found by pressing the _Open user icon folder_ button in the plugin settings.
+
+### Custom Groups
+
+Games can be manually grouped together via _Extensions_ -> _DuplicateHiderNG_ -> _Custom Groups_. Games in the same custom group are always treated as duplicates of each other.
+
+Enable _Sort Custom Groups by Name_ to display custom groups alphabetically in the context menu.
 
 ## Extension Menu
 
