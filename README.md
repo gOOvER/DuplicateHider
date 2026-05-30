@@ -1,12 +1,12 @@
 # DuplicateHiderNG
 
+> **This is a fork of [DuplicateHider](https://github.com/felixkmh/DuplicateHider) by felixkmh.**  
+> It includes bug fixes, performance improvements and new features. No new development is planned beyond translation updates.
 
 [Playnite Forum Post](https://playnite.link/forum/thread-308.html)  
 An extension for [Playnite](https://github.com/JosefNemec/Playnite/ "Playnite - video game library manager") by JosefNemec that hides additional copies of games.
 
 [![Crowdin](https://badges.crowdin.net/playnite-duplicate-hider-ng/localized.svg)](https://crowdin.com/project/playnite-duplicate-hider-ng)
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/C1C6CH5IN)
 
 ## Extension Settings
 
