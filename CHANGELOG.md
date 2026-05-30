@@ -1,3 +1,41 @@
+## v1.0.0 (2026-05-30)
+
+### Rebrand
+
+- Renamed to DuplicateHiderNG
+- Crowdin project migrated to https://crowdin.com/project/playnite-duplicate-hider-ng
+- Project migrated to SDK-style `.csproj`; NuGet packages updated to current versions
+
+### Fix
+
+- **#127**: Plugin no longer fails to load when `settings.json` is corrupted; falls back to defaults and shows a Playnite notification
+- **#93**: Platform icon now has priority over library/source plugin icon in the icon priority chain (relevant when `game.Source != null`)
+- `RemoveSelectedFromIgnoreEntry`: was reading from `PlayniteApi.MainView.SelectedGames` instead of the action context — selected games were ignored (B1)
+- `ResolveGroupConflicts`: `anyMoved` flag was never set when games were only moved between groups, causing the method to incorrectly report no changes (B2)
+- `IconCache.GetOrGenerate`: replaced non-atomic `TryGetValue`/assign with `ConcurrentDictionary.GetOrAdd` to prevent a race condition under concurrent access (B3)
+- `Settings_OnSettingsChangedAsync`: added `try/finally` to guarantee `ItemUpdated` is always re-subscribed even if an exception occurs during the settings-changed handler (B4)
+- Regex in replacement filter rules: added `MatchTimeout` to prevent ReDoS on user-supplied patterns (S1)
+- Regex in replacement filter rules: `ArgumentException` on invalid patterns is now caught gracefully instead of crashing (S2)
+- `ReplaceFilter.ApplySingle`: `RegexMatchTimeoutException` is now caught and treated as a non-match instead of propagating (S1 follow-up)
+- `catch (Exception) {}` in `IconCache` silently swallowed errors; now logs a warning with the exception details (BP1)
+- `iconWatcher` was not disposed on plugin shutdown; `Dispose()` is now called in `OnApplicationStopped` (BP2)
+- Three `if (game is Game)` null-checks replaced with `if (game != null)` — the `is`-pattern always returned `true` for non-null `Game` instances (BP3)
+- Removed dead `CompareOld` method that was never called (BP4)
+
+### Feat
+
+- **#133**: New setting "Include All Platforms" — bypasses the platform allowlist entirely, future platforms are included automatically
+- **#121**: New setting "Never Hide Installed" — installed copies are never hidden regardless of source priority
+- **#145**: New `{Library}` display string placeholder — resolves to the human-readable name of the importing library plugin (e.g. `Steam`, `GOG`); falls back to `{Source}` for manual entries
+- **#141**: New setting "Sort Custom Groups by Name" — custom groups in the game context menu are sorted alphabetically when enabled
+
+### Perf
+
+- `GetResourceNames()`: result is now cached in `_resourceNamesCache`; previously re-enumerated assembly resources on every icon lookup (O3)
+- `typeof(Game).GetProperties()`: result cached in a `static readonly` field; previously called via reflection on every display string expansion (O4)
+- `foundThemeIcons.Count() > 0` replaced with `.Any()` to avoid full enumeration (O1)
+- Four `Where().Count()` calls replaced with `Count(predicate)` to avoid intermediate allocations (O2)
+
 ## v3.9.0 (2021-12-29)
 
 ### Fix

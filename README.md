@@ -1,11 +1,10 @@
-# DuplicateHider
+# DuplicateHiderNG
 
-## Important: Version 3.x.x is only compatible with Playnite 9. The latest Version compatible with Playnite 8 is [v2.5.4](https://github.com/felixkmh/DuplicateHider/releases/tag/v2.5.4).
 
 [Playnite Forum Post](https://playnite.link/forum/thread-308.html)  
 An extension for [Playnite](https://github.com/JosefNemec/Playnite/ "Playnite - video game library manager") by JosefNemec that hides additional copies of games.
 
-[![Crowdin](https://badges.crowdin.net/duplicatehider/localized.svg)](https://crowdin.com/project/duplicatehider)
+[![Crowdin](https://badges.crowdin.net/playnite-duplicate-hider-ng/localized.svg)](https://crowdin.com/project/playnite-duplicate-hider-ng)
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/C1C6CH5IN)
 
@@ -35,9 +34,9 @@ The list of games that is checked for duplicats can be filtered by the _Indclude
 
 ### Ignored Games
 
-Additionally to the aforementioned filters, games in the _Ignored Games_ list are also not considered by DuplicateHider.
+Additionally to the aforementioned filters, games in the _Ignored Games_ list are also not considered by DuplicateHiderNG.
 To remove entries from the list, select one or more entries and right click to remove them.  
-Also, enabling the _Add manually hidden/revealed Games_ option will cause games which hidden states are changed outside of DuplicateHider to be added to that list.
+Also, enabling the _Add manually hidden/revealed Games_ option will cause games which hidden states are changed outside of DuplicateHiderNG to be added to that list.
 
 ### Display String & Show Other Copies
 
@@ -68,13 +67,13 @@ The custom UI element consists of a stack of icons associated with the copys of 
 
 #### User Specified Icons
 
-The extension comes with a set of predefined icons for common libraries (from https://icon-icons.com/pack/Material-Design/2248, under the [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) License), but users can also specify their own. For DuplicateHider to find those icons, they need to be named like the sources in the _Priority List_, for example `Steam.ico` or `Ubisoft Connect.png` and then placed into the _source\_icons_ folder that can be found by pressing the _Open user icon folder_ button in the plugin settings.
+The extension comes with a set of predefined icons for common libraries (from https://icon-icons.com/pack/Material-Design/2248, under the [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) License), but users can also specify their own. For DuplicateHiderNG to find those icons, they need to be named like the sources in the _Priority List_, for example `Steam.ico` or `Ubisoft Connect.png` and then placed into the _source\_icons_ folder that can be found by pressing the _Open user icon folder_ button in the plugin settings.
 
 ## Extension Menu
 
 ![Game Menu](https://i.ibb.co/G9r0BZ4/grafik.png "Game Menu")
 
-Under _Extensions_ -> _DuplicateHider_ functions to manually hide and reveal duplicates can be found. Also, currently selected games can either be added or removed from the _Ignore List_.
+Under _Extensions_ -> _DuplicateHiderNG_ functions to manually hide and reveal duplicates can be found. Also, currently selected games can either be added or removed from the _Ignore List_.
 
 ## Theme Integration
 
@@ -180,7 +179,7 @@ to the resource dictionary, a Theme can also specify the maximum number of icons
 
 ### Showcase Themes
 
-Some Themes ([Night](https://github.com/felixkmh/DH_Themes/tree/main/source/Night)) showing some possibilites of using the custom ui elements provided by DuplicateHider.
+Some Themes ([Night](https://github.com/felixkmh/DH_Themes/tree/main/source/Night)) showing some possibilites of using the custom ui elements provided by DuplicateHiderNG.
 
 Preview:
 |View|Preview|
